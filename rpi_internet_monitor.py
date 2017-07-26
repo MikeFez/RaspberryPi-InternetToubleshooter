@@ -4,8 +4,7 @@ from time import sleep
 import smtplib
 from gpiozero import LED, Button
 
-dont_send_email = True
-
+send_email = True
 notification_recipient = "your_email@example.com"
 gmail_send_address = "sender_email@example.com"
 gmail_send_password = "Hunter2"  # Whoa, does that appear as stars to you too??
@@ -60,11 +59,11 @@ def drawer_currently_open():
 
 
 def check_connection():
-    if navigate('https://www.google.com/') is True:
+    if connection_to('https://www.google.com/') is True:
         internet_connection = True
-    elif navigate('https://www.yahoo.com/') is True:
+    elif connection_to('https://www.yahoo.com/') is True:
         internet_connection = True
-    elif navigate('https://www.apple.com/') is True:
+    elif connection_to('https://www.apple.com/') is True:
         internet_connection = True
     else:
         internet_connection = False
@@ -72,7 +71,7 @@ def check_connection():
     return internet_connection
 
 
-def navigate(url):
+def connection_to(url):
     try:
         requests.get(url)
         print("Established connection with " + url)
@@ -96,17 +95,14 @@ def notify_of_outage(outage_data):
     msg = "Outage Detected:\n\n"
     msg += "Internet offline at: " + outage_data['down'] + "\n"
     msg += "Internet online at: " + outage_data['up'] + "\n"
-    if outage_data['toggles'] == 1:
-        msg += "Switch toggled " + str(outage_data['toggles']) + " time\n"
-    else:
-        msg += "Switch toggled " + str(outage_data['toggles']) + " times\n"
-
+    time_or_times = "time" if outage_data['toggles'] == 1 else "times"
+    msg += "Switch toggled " + str(outage_data['toggles']) + time_or_times + "\n"
     email_send(notification_recipient, "", "Internet Outage Was Detected", msg)
     return
 
 
 def email_send(to, cc, subject, body):
-    if dont_send_email is False:
+    if send_email:
         gmail_user = gmail_send_address
         gmail_pwd = gmail_send_password
         FROM = gmail_user
